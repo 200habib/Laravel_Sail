@@ -20,8 +20,10 @@
         @endif
     </head>
     <body>
-        <p>hello 
-            
-        </p>
+    <form method="GET" action="/sss">
+    <input type="text" name="name" value="Mario">
+    <button type="submit">Invia</button>
+</form>
+
     </body>
 </html>

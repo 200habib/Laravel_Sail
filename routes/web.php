@@ -5,6 +5,17 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\PostController;
 
+use Illuminate\Support\Facades\Mail;
+
+Route::get('/send-test', function () {
+    Mail::raw('Questa è una email di test per MailHog.', function ($message) {
+        $message->to('test@example.com')
+                ->subject('Test MailHog');
+    });
+
+    return 'Email inviata a MailHog!';
+});
+
 
 Route::get('/', function () {
     return view('welcome');

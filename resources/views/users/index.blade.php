@@ -13,5 +13,10 @@
             <li>{{ $user->name }} - {{ $user->email }}</li>
         @endforeach
     </ul>
+    <form method="POST" action="/register">
+    <input type="text" name="name" value="Mario">
+    <button type="submit">Invia</button>
+</form>
+
 </body>
 </html>
