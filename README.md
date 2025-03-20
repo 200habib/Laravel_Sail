@@ -30,3 +30,27 @@ Route::post('/set-cookie', function (Request $request) {
     Questo sito utilizza i cookie. Accetta l'uso dei cookie per migliorare la tua esperienza.
     <button id="accept-cookies" style="background: green; color: white; padding: 5px 10px; margin-left: 10px;">Accetta</button>
 </div>
+
+
+
+o$ php artisan make:mail Test -m
+PHP Warning:  Module "sqlite3" is already loaded in Unknown on line 0
+
+   INFO  Mailable [app/Mail/Test.php] created successfully.  
+
+   INFO  Markdown view [resources/views/mail/test.blade.php] created successfully.  
+
+el@el-Lenovo-ideapad-330-15AST:~/Bureau/personal_project/code/laravel/mio-progetto$ docker run -d -p 1025:1025 -p 8025:8025 mailhog/mailhog
+docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Head "http://%2Fvar%2Frun%2Fdocker.sock/_ping": dial unix /var/run/docker.sock: connect: permission denied
+
+Run 'docker run --help' for more information
+el@el-Lenovo-ideapad-330-15AST:~/Bureau/personal_project/code/laravel/mio-progetto$ sudo usermod -aG docker $USER
+[sudo] Mot de passe de el : 
+Désolé, essayez de nouveau.
+[sudo] Mot de passe de el : 
+Désolé, essayez de nouveau.
+[sudo] Mot de passe de el : 
+sudo: 3 saisies de mots de passe incorrectes
+el@el-Lenovo-ideapad-330-15AST:~/Bureau/personal_project/code/laravel/mio-progetto$ sudo usermod -aG docker $USER
+[sudo] Mot de passe de el : 
+el@el-Lenovo-ideapad-330-15AST:~/Bureau/personal_project/code/laravel/mio-progetto$ newgrp docker
