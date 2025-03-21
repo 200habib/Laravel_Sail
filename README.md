@@ -1,56 +1,91 @@
- Esempio 1 - Redirect a una URL con i vecchi input
+# 🍽 Relazioni tra Utenti e Piatti in Laravel
 
-return redirect('/form')->withInput();
+## 1. Associare un Piatto al Creatore (User) - Relazione One To Many
 
-✅ Ti rimanda alla rotta /form
-✅ Porta con sé tutti i dati che erano stati mandati nella request precedente
+Un utente può creare più piatti, e ogni piatto ha un solo creatore.
 
-Nel form potrai usare:
+### 📌 Migrazione `plats` (piatti):
 
-<input type="text" name="name" value="{{ old('name') }}">
-
-E Laravel riprenderà il valore inserito prima.
-
-
-use Illuminate\Http\Request;
-
-Route::post('/set-cookie', function (Request $request) {
-    if ($request->has('accept_cookies')) {
-        // Imposta un cookie quando l'utente accetta
-        return response()->json(['message' => 'Cookie accettato'])
-            ->cookie('user_session', 'xyz12345', 60, '/', null, true, true);  // Imposta un cookie che dura 60 minuti
-    }
-
-    return response()->json(['message' => 'Errore nella richiesta'], 400);
+```php
+Schema::create('plats', function (Blueprint $table) {
+    $table->id();
+    $table->string('nom');
+    $table->foreignId('user_id')->constrained()->onDelete('cascade'); // creatore
+    $table->timestamps();
 });
-<meta name="csrf-token" content="{{ csrf_token() }}">
 
+📌 Modello Plat.php:
 
-<div id="cookie-consent-banner" style="position: fixed; bottom: 0; left: 0; width: 100%; background: #333; color: white; text-align: center; padding: 10px;">
-    Questo sito utilizza i cookie. Accetta l'uso dei cookie per migliorare la tua esperienza.
-    <button id="accept-cookies" style="background: green; color: white; padding: 5px 10px; margin-left: 10px;">Accetta</button>
-</div>
+class Plat extends Model
+{
+    use HasFactory;
 
+    // Relazione inversa: un piatto ha un solo creatore (utente)
+    public function createur()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+}
 
+📌 Modello User.php:
 
-o$ php artisan make:mail Test -m
-PHP Warning:  Module "sqlite3" is already loaded in Unknown on line 0
+class User extends Authenticatable
+{
+    use HasFactory, Notifiable;
 
-   INFO  Mailable [app/Mail/Test.php] created successfully.  
+    // Relazione: un utente può creare più piatti
+    public function platsCrees()
+    {
+        return $this->hasMany(Plat::class, 'user_id');
+    }
+}
 
-   INFO  Markdown view [resources/views/mail/test.blade.php] created successfully.  
+✅ Uso:
 
-el@el-Lenovo-ideapad-330-15AST:~/Bureau/personal_project/code/laravel/mio-progetto$ docker run -d -p 1025:1025 -p 8025:8025 mailhog/mailhog
-docker: permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Head "http://%2Fvar%2Frun%2Fdocker.sock/_ping": dial unix /var/run/docker.sock: connect: permission denied
+// Recupera il creatore di un piatto
+$plat = Plat::find(1);
+echo $plat->createur->name;  // Mostra il nome del creatore
 
-Run 'docker run --help' for more information
-el@el-Lenovo-ideapad-330-15AST:~/Bureau/personal_project/code/laravel/mio-progetto$ sudo usermod -aG docker $USER
-[sudo] Mot de passe de el : 
-Désolé, essayez de nouveau.
-[sudo] Mot de passe de el : 
-Désolé, essayez de nouveau.
-[sudo] Mot de passe de el : 
-sudo: 3 saisies de mots de passe incorrectes
-el@el-Lenovo-ideapad-330-15AST:~/Bureau/personal_project/code/laravel/mio-progetto$ sudo usermod -aG docker $USER
-[sudo] Mot de passe de el : 
-el@el-Lenovo-ideapad-330-15AST:~/Bureau/personal_project/code/laravel/mio-progetto$ newgrp docker
+// Recupera tutti i piatti creati da un utente
+$user = User::find(1);
+foreach ($user->platsCrees as $plat) {
+    echo $plat->nom;  // Mostra il nome del piatto
+}
+
+2. Favoriti (Many-to-Many tra User e Plat)
+
+Un utente può avere più piatti nei preferiti, e un piatto può essere nei preferiti di più utenti.
+📌 Tabella pivot favoris:
+
+Schema::create('favoris', function (Blueprint $table) {
+    $table->id();
+    $table->foreignId('user_id')->constrained()->onDelete('cascade');
+    $table->foreignId('plat_id')->constrained()->onDelete('cascade');
+    $table->timestamps();
+});
+
+📌 Modello User.php:
+
+class User extends Authenticatable
+{
+    use HasFactory, Notifiable;
+
+    // Relazione Many-to-Many: un utente può avere molti piatti nei preferiti
+    public function favoris()
+    {
+        return $this->belongsToMany(Plat::class, 'favoris')->withTimestamps();
+    }
+}
+
+📌 Modello Plat.php:
+
+class Plat extends Model
+{
+    use HasFactory;
+
+    // Relazione Many-to-Many: un piatto può essere nei preferiti di molti utenti
+    public function favorisPar()
+    {
+        return $this->belongsToMany(User::class, 'favoris')->withTimestamps();
+    }
+}
